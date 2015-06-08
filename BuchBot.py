@@ -19,6 +19,7 @@ def rtm_call(endpoint, **args):
 
 channels = {}
 users = {}
+user_presence = {}
 channel_id = ''
 self_user_id = ''
 msg_id = 0
@@ -44,10 +45,13 @@ def on_message(ws, message):
     msg = json.loads(message)
     if msg['type'] == 'presence_change':
         if msg['presence'] == 'active':
-            user_name = users[msg['user']]
-            if user_name != 'mr_buchanan':
-                #say(ws, 'HELLO ' + user_name + '!')
-                print "Presence change:", user_name
+            if user_presence[msg['user']] != 'active':
+                user_presence[msg['user']] = 'active'
+                user_name = users[msg['user']]
+                if user_name != 'mr_buchanan':
+                    say(ws, 'HELLO ' + user_name + '!')
+        elif msg['presence'] == 'away':
+            user_presence[msg['user']] = 'away'
     elif msg['type'] == 'message':
         if msg['channel'] == channel_id:
             if msg['text'][0] == '!':
