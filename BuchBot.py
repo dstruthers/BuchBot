@@ -50,20 +50,36 @@ def on_message(ws, message):
                 print "Presence change:", user_name
     elif msg['type'] == 'message':
         if msg['channel'] == channel_id:
-            if re.search('bab(y|ies)', msg['text'], re.I):
-                say(ws, 'DELICIOUS!!!')
-            elif re.search('(bathtub|monster truck tire)', msg['text'], re.I):
-                say(ws, "I'VE BEEN WAITING FOR THIS ALL DAY!!!")
-            elif re.search('cheeseburger', msg['text'], re.I):
-                say(ws, "A MAN'S GOTTA EAT!!!")
-            elif re.search('child', msg['text'], re.I):
-                say(ws, 'CHILD?? WHERE???')
-            elif re.search('electricity', msg['text'], re.I):
-                say(ws, "IF YOU'RE GOOD, I'LL TELL YOU A STORY ABOUT ELECTRICITY!!!")
-            elif re.search('food', msg['text'], re.I):
-                say(ws, 'SOMEONE SAY FOOD?? I COULD EAT...')
-            elif re.search('kinderwurst', msg['text'], re.I):
-                say(ws, "I'M GETTING HUNGRY!!!")
+            if msg['text'][0] == '!':
+                match = re.match('^!([a-z]+)(.*)$', msg['text'])
+                command = match.groups()[0]
+                if command == 'buchanan':
+                    emoji = ':buchflower: '
+                    m = ''
+                    for i in [1,2,3,2,1]:
+                        for j in range(0, i):
+                            m += emoji
+                        m += '\n'
+                    say(ws, m)
+            else:
+                if re.search('bab(y|ies)', msg['text'], re.I):
+                    say(ws, 'DELICIOUS!!!')
+                elif re.search('(bathtub|monster truck tire)', msg['text'], re.I):
+                    say(ws, "I'VE BEEN WAITING FOR THIS ALL DAY!!!")
+                elif re.search('buchdawg', msg['text'], re.I):
+                    say(ws, 'WHO LET THE BUCH OUT, WHO, WHO WHO, WHO WHO')
+                elif re.search('cheeseburger', msg['text'], re.I):
+                    say(ws, "A MAN'S GOTTA EAT!!!")
+                elif re.search('child', msg['text'], re.I):
+                    say(ws, 'CHILD?? WHERE???')
+                elif re.search('electricity', msg['text'], re.I):
+                    say(ws, "IF YOU'RE GOOD, I'LL TELL YOU A STORY ABOUT ELECTRICITY!!!")
+                elif re.search('fire drill', msg['text'], re.I):
+                    say(ws, "CAN SOMEBODY CARRY ME?!?!")
+                elif re.search('food', msg['text'], re.I):
+                    say(ws, 'SOMEONE SAY FOOD?? I COULD EAT...')
+                elif re.search('kinderwurst', msg['text'], re.I):
+                    say(ws, "I'M GETTING HUNGRY!!!")
 
 def on_error(ws, error):
     print 'Error: ' + error
