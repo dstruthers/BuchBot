@@ -45,7 +45,7 @@ def on_message(ws, message):
     msg = json.loads(message)
     if msg['type'] == 'presence_change':
         if msg['presence'] == 'active':
-            if user_presence[msg['user']] != 'active':
+            if not user_presence.has_key(msg['user']) or user_presence[msg['user']] != 'active':
                 user_presence[msg['user']] = 'active'
                 user_name = users[msg['user']]
                 if user_name != 'mr_buchanan':
