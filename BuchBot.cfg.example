@@ -1,0 +1,4 @@
+[General]
+api_token: xxxx-9999999999-xxxxxxxxxxxxxxxxxxxxxxxx
+api_base_uri: https://slack.com/api/
+slack_channel: general
