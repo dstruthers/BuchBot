@@ -52,8 +52,14 @@ def on_message(ws, message):
         if msg['channel'] == channel_id:
             if re.search('bab(y|ies)', msg['text'], re.I):
                 say(ws, 'DELICIOUS!!!')
+            elif re.search('(bathtub|monster truck tire)', msg['text'], re.I):
+                say(ws, "I'VE BEEN WAITING FOR THIS ALL DAY!!!")
             elif re.search('cheeseburger', msg['text'], re.I):
                 say(ws, "A MAN'S GOTTA EAT!!!")
+            elif re.search('child', msg['text'], re.I):
+                say(ws, 'CHILD?? WHERE???')
+            elif re.search('electricity', msg['text'], re.I):
+                say(ws, "IF YOU'RE GOOD, I'LL TELL YOU A STORY ABOUT ELECTRICITY!!!")
             elif re.search('food', msg['text'], re.I):
                 say(ws, 'SOMEONE SAY FOOD?? I COULD EAT...')
             elif re.search('kinderwurst', msg['text'], re.I):
