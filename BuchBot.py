@@ -42,9 +42,26 @@ def listen_for_commands(bot, msg):
         if msg.text == '!reload':
             load_keywords()
             bot.say(slack_channel_id, 'OKAY!!!')
+
+def greet_people(bot, msg):
+    if msg.user == bot.user_id:
+        return
     
+    for user in bot.users:
+        if user.id == msg.user:
+            break
+        
+    print "User is", user.username
+    if msg.presence == 'active':
+        if user.presence != msg.presence:
+            user.presence = 'active'
+            bot.say(slack_channel_id, 'HELLO ' + user.username + '!!!')
+    else:
+        user.presence = msg.presence
+            
 buch.add_event_listener('open', on_open)
 buch.add_event_listener('message', listen_for_keywords)
 buch.add_event_listener('message', listen_for_commands)
+buch.add_event_listener('presence_change', greet_people)
 
 buch.run()

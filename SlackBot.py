@@ -91,6 +91,7 @@ class SlackBot:
 
 class SlackUser:
     '''Basic representation of a Slack user'''
+
     @staticmethod
     def from_dict(d):
         '''Creates a SlackUser object from a dictionary of attributes.
@@ -113,6 +114,7 @@ class SlackUser:
 
 class SlackChannel:
     '''Basic representation of a Slack chat channel'''
+
     @staticmethod
     def from_dict(d):
         '''Creates a SlackChannel object from a dictionary of attributes.
@@ -134,6 +136,9 @@ class SlackEvent:
 
     @staticmethod
     def from_dict(d):
+        '''Creates a SlackEvent object from a dictionary of attributes.
+        Suitable for use with objects returned by WebSocket API'''
+
         e = SlackEvent()
         e.type = d['type']
 
