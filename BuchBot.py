@@ -51,7 +51,6 @@ def greet_people(bot, msg):
         if user.id == msg.user:
             break
         
-    print "User is", user.username
     if msg.presence == 'active':
         if user.presence != msg.presence:
             user.presence = 'active'
