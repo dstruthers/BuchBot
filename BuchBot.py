@@ -23,6 +23,7 @@ def load_keywords():
     f.close()
 
 def on_open(bot):
+    '''Finds the ID for the preferred channel and then greets everyone'''
     global slack_channel_id
     for channel in bot.channels:
         if channel.name == slack_channel:
@@ -31,6 +32,9 @@ def on_open(bot):
     bot.say(slack_channel_id, 'HELLO CLASS!!!')
 
 def listen_for_keywords(bot, msg):
+    '''Event handler that watches chat messages for certain keywords (stored as
+    regular expressions in a JSON file, and then responds according to a mapping
+    of keyword expressions to responses'''
     global keyword_mappings
     if msg.channel == slack_channel_id:
         if keyword_mappings == {}:
@@ -42,6 +46,9 @@ def listen_for_keywords(bot, msg):
                 break
 
 def listen_for_commands(bot, msg):
+    '''Event handler that watches chat messages for messages starting with an
+    exclamation point, and then attempts to parse a recognized command from the
+    message'''
     if msg.text == '!reload':
         load_config()
         load_keywords()
@@ -55,6 +62,8 @@ def listen_for_commands(bot, msg):
 
 
 def greet_people(bot, msg):
+    '''Event handler that sends a greeting to users when they return to the
+    chat'''
     if not send_greetings:
         return
     
@@ -68,7 +77,7 @@ def greet_people(bot, msg):
     if msg.presence == 'active':
         if user.presence != msg.presence:
             user.presence = 'active'
-            bot.say(slack_channel_id, 'HELLO ' + user.username + '!!!')
+            bot.say(slack_channel_id, 'HELLO {}!!!'.format(user.username))
     else:
         user.presence = msg.presence
 
