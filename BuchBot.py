@@ -27,7 +27,7 @@ def on_open(bot):
             break
     bot.say(slack_channel_id, 'HELLO CLASS!!!')
 
-def on_message(bot, msg):
+def listen_for_keywords(bot, msg):
     global keyword_mappings
     if msg.channel == slack_channel_id:
         if keyword_mappings == {}:
@@ -36,7 +36,15 @@ def on_message(bot, msg):
         for pattern in keyword_mappings:
             if re.search(pattern, msg.text, re.I):
                 bot.say(slack_channel_id, keyword_mappings[pattern])
+
+def listen_for_commands(bot, msg):
+    if msg.channel == slack_channel_id:
+        if msg.text == '!reload':
+            load_keywords()
+            bot.say(slack_channel_id, 'OKAY!!!')
     
 buch.add_event_listener('open', on_open)
-buch.add_event_listener('message', on_message)
+buch.add_event_listener('message', listen_for_keywords)
+buch.add_event_listener('message', listen_for_commands)
+
 buch.run()
