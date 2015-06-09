@@ -42,11 +42,13 @@ def listen_for_keywords(bot, msg):
                 break
 
 def listen_for_commands(bot, msg):
-    if msg.channel == slack_channel_id:
-        if msg.text == '!reload':
-            load_config()
-            load_keywords()
-            bot.say(slack_channel_id, 'OKAY!!!')
+    if msg.text == '!reload':
+        load_config()
+        load_keywords()
+        bot.say(msg.channel, 'OKAY!!!')
+    elif re.search('^!say', msg.text, re.I):
+        match = re.match('^!say (.*)$', msg.text, re.I)
+        bot.say(slack_channel_id, match.groups()[0])
 
 def greet_people(bot, msg):
     if not send_greetings:
