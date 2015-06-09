@@ -7,6 +7,7 @@ config.read('BuchBot.cfg')
 SLACK_API_TOKEN = config.get('General', 'api_token')
 SLACK_CHANNEL = config.get('General', 'slack_channel')
 KEYWORD_FILE = config.get('General', 'keyword_file')
+SEND_GREETINGS = config.getboolean('General', 'greet_people')
 
 slack_channel_id = None
 keyword_mappings = {}
@@ -62,6 +63,7 @@ buch.show_typing = True
 buch.add_event_listener('open', on_open)
 buch.add_event_listener('message', listen_for_keywords)
 buch.add_event_listener('message', listen_for_commands)
-buch.add_event_listener('presence_change', greet_people)
+if SEND_GREETINGS:
+    buch.add_event_listener('presence_change', greet_people)
 
 buch.run()
