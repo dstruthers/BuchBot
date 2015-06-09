@@ -1,4 +1,5 @@
 import json, urllib2, websocket
+from time import sleep
 
 class SlackBot:
     '''Uses Slack RTM and WebSocket APIs to provide basic slack bot
@@ -11,6 +12,7 @@ class SlackBot:
         self.api_token = api_token
         self.event_listeners = {}
         self.message_id = 0
+        self.show_typing = False
 
     def add_event_listener(self, type, fn):
         '''Add high level event listener'''
@@ -19,6 +21,14 @@ class SlackBot:
         self.event_listeners[type].append(fn)
 
     def say(self, channel_id, text):
+        if self.show_typing:
+            for i in range(0, 2):
+                msg = json.dumps({'id': self.next_message_id(),
+                                  'type': 'typing',
+                                  'channel': channel_id})
+                self.ws.send(msg)
+                sleep(1)
+                
         msg = json.dumps({'id': self.next_message_id(),
                           'type': 'message',
                           'channel': channel_id,
@@ -79,7 +89,7 @@ class SlackBot:
             for channel in start_result['channels']:
                 self.channels.append(SlackChannel.from_dict(channel))   
 
-            websocket.enableTrace(True)
+
             self.ws = websocket.WebSocketApp(start_result['url'],
                                              on_message = on_message,
                                              on_error = on_error,

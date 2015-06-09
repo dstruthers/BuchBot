@@ -11,8 +11,6 @@ KEYWORD_FILE = config.get('General', 'keyword_file')
 slack_channel_id = None
 keyword_mappings = {}
 
-buch = SlackBot(SLACK_API_TOKEN)
-
 def load_keywords():
     global keyword_mappings
     f = open(KEYWORD_FILE, 'r')
@@ -36,6 +34,7 @@ def listen_for_keywords(bot, msg):
         for pattern in keyword_mappings:
             if re.search(pattern, msg.text, re.I):
                 bot.say(slack_channel_id, keyword_mappings[pattern])
+                break
 
 def listen_for_commands(bot, msg):
     if msg.channel == slack_channel_id:
@@ -58,6 +57,8 @@ def greet_people(bot, msg):
     else:
         user.presence = msg.presence
             
+buch = SlackBot(SLACK_API_TOKEN)
+buch.show_typing = True
 buch.add_event_listener('open', on_open)
 buch.add_event_listener('message', listen_for_keywords)
 buch.add_event_listener('message', listen_for_commands)
