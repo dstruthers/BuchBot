@@ -1,4 +1,4 @@
-import ConfigParser, json, re
+import ConfigParser, json, random, re
 from SlackBot import SlackBot
 
 slack_channel_id = None
@@ -14,6 +14,7 @@ def load_config():
     slack_channel = config.get('General', 'slack_channel')
     keyword_file = config.get('General', 'keyword_file')
     send_greetings = config.getboolean('General', 'greet_people')
+    refrigerators_file = config.get('General', 'refrigerators_file')
     
 def load_keywords():
     '''Load keyword matching patterns from JSON file'''
@@ -59,7 +60,22 @@ def listen_for_commands(bot, msg):
     elif re.search('^!yell', msg.text, re.I):
         match = re.match('^!yell (.*)$', msg.text, re.I)
         bot.say(slack_channel_id, match.groups()[0].upper())
+    elif msg.text == '!refrigerators':
+        f = open('refrigerators.txt', 'r')
+        lyrics = f.readlines()
+        verses = []
+        verse = ''
+        for line in lyrics:
+            if line != '\n':
+                verse += line
+            else:
+                verses.append(verse)
+                verse = ''
 
+        verse_no = random.randint(0, len(verses) - 1)
+        for line in verses[verse_no].split('\n'):
+            if line:
+                bot.say(msg.channel, '_{}_'.format(line))
 
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
