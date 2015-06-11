@@ -77,6 +77,9 @@ def refrigerators_command(bot, msg):
         if line:
             bot.say(msg.channel, '_{}_'.format(line))
     
+def totinos_command(bot, msg):
+    bot.say(msg.channel, 'https://www.youtube.com/watch?v=NAalGQ5LSpA')
+
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
     chat'''
@@ -110,5 +113,6 @@ buch.add_command('reload', reload_command)
 buch.add_command('say', say_command)
 buch.add_command('yell', yell_command)
 buch.add_command('refrigerators', refrigerators_command)
+buch.add_command('totinos', totinos_command)
 
 buch.run()
