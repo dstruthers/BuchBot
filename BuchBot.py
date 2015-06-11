@@ -37,7 +37,7 @@ def listen_for_keywords(bot, msg):
     regular expressions in a JSON file, and then responds according to a mapping
     of keyword expressions to responses'''
     global keyword_mappings
-    if msg.channel == slack_channel_id:
+    if msg.user != bot.user_id and msg.channel == slack_channel_id:
         if keyword_mappings == {}:
             load_keywords()
             

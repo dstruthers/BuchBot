@@ -1,5 +1,5 @@
 import json, re, urllib2, websocket
-from time import sleep
+from time import sleep, time
 
 SLACK_API_BASE = 'https://slack.com/api/'
 DEBUG = True
@@ -16,6 +16,7 @@ class SlackBot:
         self.show_typing = False
         self.command_prefix = '!'
         self.commands = {}
+        self.start_time = time()
 
     def add_event_listener(self, type, fn):
         '''Add high level event listener'''
@@ -72,8 +73,19 @@ class SlackBot:
                     fn(self)
 
         def on_message(ws, message):
+            if DEBUG:
+                print message
+
             self.on_message(ws, message)
             e = SlackEvent.from_dict(json.loads(message))
+
+            # Slack seems to barrage the session with a bunch of old
+            # messages upon startup, so ignore these
+            if e.type == 'message' and e.ts < self.start_time:
+                if DEBUG:
+                    print 'Skipping old message:', message
+                return
+            
             if self.event_listeners.has_key(e.type):
                 for fn in self.event_listeners[e.type]:
                     fn(self, e)
@@ -81,6 +93,8 @@ class SlackBot:
             if len(self.commands) > 0 and e.type == 'message':
                 for keyword in self.commands:
                     if re.search(r'^%s%s\b' % (self.command_prefix, keyword), e.text):
+                        if DEBUG:
+                            print message
                         self.commands[keyword](self, e)
                     
         def on_error(ws, error):
@@ -167,7 +181,7 @@ class SlackEvent:
         e.type = d['type']
 
         if d['type'] == 'message':
-            e.ts = d['ts']
+            e.ts = float(d['ts'])
             e.user = d['user']
             e.channel = d['channel']
             e.text = d['text']
