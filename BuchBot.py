@@ -30,7 +30,7 @@ def on_open(bot):
         if channel.name == slack_channel:
             slack_channel_id = channel.id
             break
-    bot.say(slack_channel_id, 'HELLO CLASS!!!')
+    #bot.say(slack_channel_id, 'HELLO CLASS!!!')
 
 def listen_for_keywords(bot, msg):
     '''Event handler that watches chat messages for certain keywords (stored as
@@ -46,37 +46,37 @@ def listen_for_keywords(bot, msg):
                 bot.say(slack_channel_id, keyword_mappings[pattern])
                 break
 
-def listen_for_commands(bot, msg):
-    '''Event handler that watches chat messages for messages starting with an
-    exclamation point, and then attempts to parse a recognized command from the
-    message'''
-    if msg.text == '!reload':
-        load_config()
-        load_keywords()
-        bot.say(msg.channel, 'OKAY!!!')
-    elif re.search('^!say', msg.text, re.I):
-        match = re.match('^!say (.*)$', msg.text, re.I)
-        bot.say(slack_channel_id, match.groups()[0])
-    elif re.search('^!yell', msg.text, re.I):
-        match = re.match('^!yell (.*)$', msg.text, re.I)
-        bot.say(slack_channel_id, match.groups()[0].upper())
-    elif msg.text == '!refrigerators':
-        f = open('refrigerators.txt', 'r')
-        lyrics = f.readlines()
-        verses = []
-        verse = ''
-        for line in lyrics:
-            if line != '\n':
-                verse += line
-            else:
-                verses.append(verse)
-                verse = ''
 
-        verse_no = random.randint(0, len(verses) - 1)
-        for line in verses[verse_no].split('\n'):
-            if line:
-                bot.say(msg.channel, '_{}_'.format(line))
+def reload_command(bot, msg):
+    load_config()
+    load_keywords()
+    bot.say(msg.channel, 'OKAY!!!')
 
+def say_command(bot, msg):
+    match = re.match('^!say (.*)$', msg.text, re.I)
+    bot.say(slack_channel_id, match.groups()[0])
+    
+def yell_command(bot, msg):
+    match = re.match('^!yell (.*)$', msg.text, re.I)
+    bot.say(slack_channel_id, match.groups()[0].upper())
+
+def refrigerators_command(bot, msg):
+    f = open('refrigerators.txt', 'r')
+    lyrics = f.readlines()
+    verses = []
+    verse = ''
+    for line in lyrics:
+        if line != '\n':
+            verse += line
+        else:
+            verses.append(verse)
+            verse = ''
+
+    verse_no = random.randint(0, len(verses) - 1)
+    for line in verses[verse_no].split('\n'):
+        if line:
+            bot.say(msg.channel, '_{}_'.format(line))
+    
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
     chat'''
@@ -101,9 +101,14 @@ load_config()
 
 buch = SlackBot(slack_api_token)
 buch.show_typing = True
+
 buch.add_event_listener('open', on_open)
 buch.add_event_listener('message', listen_for_keywords)
-buch.add_event_listener('message', listen_for_commands)
 buch.add_event_listener('presence_change', greet_people)
+
+buch.add_command('reload', reload_command)
+buch.add_command('say', say_command)
+buch.add_command('yell', yell_command)
+buch.add_command('refrigerators', refrigerators_command)
 
 buch.run()

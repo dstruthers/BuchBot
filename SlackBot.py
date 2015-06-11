@@ -1,24 +1,31 @@
-import json, urllib2, websocket
+import json, re, urllib2, websocket
 from time import sleep
+
+SLACK_API_BASE = 'https://slack.com/api/'
+DEBUG = True
 
 class SlackBot:
     '''Uses Slack RTM and WebSocket APIs to provide basic slack bot
     functionality'''
 
-    SLACK_API_BASE = 'https://slack.com/api/'
-    
     def __init__(self, api_token):
         '''SlackBot constructor'''
         self.api_token = api_token
         self.event_listeners = {}
         self.message_id = 0
         self.show_typing = False
+        self.command_prefix = '!'
+        self.commands = {}
 
     def add_event_listener(self, type, fn):
         '''Add high level event listener'''
         if not self.event_listeners.has_key(type):
             self.event_listeners[type] = []
         self.event_listeners[type].append(fn)
+
+    def add_command(self, keyword, fn):
+        '''Add bot command'''
+        self.commands[keyword] = fn
 
     def say(self, channel_id, text):
         if self.show_typing:
@@ -47,7 +54,7 @@ class SlackBot:
         for key in args:
             if params: params += '&'
             params += key + '=' + args[key]
-        url = SlackBot.SLACK_API_BASE + endpoint + '?' + params
+        url = SLACK_API_BASE + endpoint + '?' + params
         result = json.loads(urllib2.urlopen(url).read())
         return result
 
@@ -70,6 +77,11 @@ class SlackBot:
             if self.event_listeners.has_key(e.type):
                 for fn in self.event_listeners[e.type]:
                     fn(self, e)
+
+            if len(self.commands) > 0 and e.type == 'message':
+                for keyword in self.commands:
+                    if re.search(r'^%s%s\b' % (self.command_prefix, keyword), e.text):
+                        self.commands[keyword](self, e)
                     
         def on_error(ws, error):
             self.on_error(ws, error)
@@ -95,6 +107,8 @@ class SlackBot:
                                              on_error = on_error,
                                              on_close = on_close,
                                              on_open = on_open)
+
+            websocket.enableTrace(DEBUG)
             self.ws.run_forever()
         else:
             raise SlackBotError('Could not initiate RTM session')
