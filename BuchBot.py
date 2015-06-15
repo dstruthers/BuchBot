@@ -1,4 +1,5 @@
-import ConfigParser, json, random, re
+import ConfigParser, json, re
+from random import randint
 from SlackBot import SlackBot
 
 slack_channel_id = None
@@ -72,7 +73,7 @@ def refrigerators_command(bot, msg):
             verses.append(verse)
             verse = ''
 
-    verse_no = random.randint(0, len(verses) - 1)
+    verse_no = randint(0, len(verses) - 1)
     for line in verses[verse_no].split('\n'):
         if line:
             bot.say(msg.channel, '_{}_'.format(line))
@@ -83,6 +84,28 @@ def totinos_command(bot, msg):
 def kris_command(bot, msg):
     bot.say(msg.channel, 'https://lh3.googleusercontent.com/o4shSu16vzXDbYsbW87zMRao4Oa5-Y5ySxgjtlZG0Dk=w640-h960-no')
 
+def grumble_command(bot, msg):
+    bot.say(msg.channel, 'http://www.secrettoeverybody.com/images/grumble.png')
+
+def clickbait_command(bot, msg):
+    subjects = ['They', 'He', 'She', 'Scientists', 'Researchers', 'The government', 'Advertisers', 'Politicians']
+    verbs = ['saw', 'ate', 'produced', 'created', 'destroyed', 'painted', 'taught', 'bought']
+    adjectives = ['short', 'tall', 'online', 'intelligent', 'hungry', 'thirsty', 'obese']
+    objects = ['cats', 'dogs', 'turtles', 'trees', 'buildings', 'people', 'actors', 'parents', 'children', 'countries']
+    extras = ['in one day', 'on the Internet', 'in a foreign country', 'on television']
+    subjects2 = ['What happened next', 'The result', 'Their conclusion', 'The outcome', 'What I learned']
+    results = ['will blow your mind', 'made my mouth drop', 'was incredible', 'will change your life', 'was shocking', 'is terrifying']
+
+    bait = '%s %s %d %s %s %s. %s %s.' % (subjects[randint(0, len(subjects) - 1)],
+                                          verbs[randint(0, len(verbs) - 1)],
+                                          randint(1, 100),
+                                          adjectives[randint(0, len(adjectives) - 1)],
+                                          objects[randint(0, len(objects) - 1)],
+                                          extras[randint(0, len(extras) - 1)],
+                                          subjects2[randint(0, len(subjects2) - 1)],
+                                          results[randint(0, len(results) - 1)])
+    bot.say(msg.channel, '_%s_' % (bait))
+    
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
     chat'''
@@ -118,5 +141,7 @@ buch.add_command('yell', yell_command)
 buch.add_command('refrigerators', refrigerators_command)
 buch.add_command('totinos', totinos_command)
 buch.add_command('kris', kris_command)
+buch.add_command('grumble', grumble_command)
+buch.add_command('clickbait', clickbait_command)
 
 buch.run()
