@@ -72,7 +72,8 @@ def refrigerators_command(bot, msg):
         else:
             verses.append(verse)
             verse = ''
-
+    verses.append(verse)
+            
     verse_no = randint(0, len(verses) - 1)
     for line in verses[verse_no].split('\n'):
         if line:
