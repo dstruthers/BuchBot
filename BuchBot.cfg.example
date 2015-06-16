@@ -4,3 +4,4 @@ slack_channel: general
 keyword_file: keywords.json
 greet_people: False
 refrigerators_file: /path/to/refrigerators.txt
+wolfram_app_id: XXXXXXXXXXXXXXXX

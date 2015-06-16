@@ -1,13 +1,16 @@
-import ConfigParser, json, re
+import ConfigParser, json, re, urllib2
+import xml.etree.ElementTree as ET
 from random import randint
 from SlackBot import SlackBot
 
+
 slack_channel_id = None
 keyword_mappings = {}
+wolfram_app_id = None
 
 def load_config():
     '''Load bot options from config file'''
-    global slack_api_token, slack_channel, keyword_file, send_greetings
+    global slack_api_token, slack_channel, keyword_file, send_greetings, wolfram_app_id
     config = ConfigParser.RawConfigParser()
     config.read('BuchBot.cfg')
 
@@ -16,6 +19,7 @@ def load_config():
     keyword_file = config.get('General', 'keyword_file')
     send_greetings = config.getboolean('General', 'greet_people')
     refrigerators_file = config.get('General', 'refrigerators_file')
+    wolfram_app_id = config.get('General', 'wolfram_app_id')
     
 def load_keywords():
     '''Load keyword matching patterns from JSON file'''
@@ -105,7 +109,32 @@ def clickbait_command(bot, msg):
                                           extras[randint(0, len(extras) - 1)],
                                           subjects2[randint(0, len(subjects2) - 1)],
                                           results[randint(0, len(results) - 1)])
-    bot.say(msg.channel, '_%s_' % (bait))
+    bot.say(msg.channel, '_%s_' % bait)
+    
+def lookup_command(bot, msg):
+    def wolfram_lookup(query):
+        '''Uses Wolfram Alpha REST API'''
+        global wolfram_app_id
+        
+        api_uri = 'http://api.wolframalpha.com/v2/query?'
+        request_uri = api_uri + 'input=' + urllib2.quote(query) + '&appid=' + wolfram_app_id
+        xml = urllib2.urlopen(request_uri).read()
+
+        blacklisted_pods = ['Input', 'Input interpretation']
+
+        root = ET.fromstring(xml)
+
+        for child in root:
+            if child.tag == 'pod':
+                if child.attrib['title'] not in blacklisted_pods:
+                    for node in child.iter('plaintext'):
+                        return node.text
+        else:
+            return 'Unknown'
+
+    match = re.match('^!lookup (.*)$', msg.text, re.I)
+    result = wolfram_lookup(match.groups()[0])
+    bot.say(msg.channel, result)
     
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
@@ -123,7 +152,7 @@ def greet_people(bot, msg):
     if msg.presence == 'active':
         if user.presence != msg.presence:
             user.presence = 'active'
-            bot.say(slack_channel_id, 'HELLO {}!!!'.format(user.username))
+            bot.say(slack_channel_id, 'HELLO %s!!!' % user.username)
     else:
         user.presence = msg.presence
 
@@ -144,5 +173,6 @@ buch.add_command('totinos', totinos_command)
 buch.add_command('kris', kris_command)
 buch.add_command('grumble', grumble_command)
 buch.add_command('clickbait', clickbait_command)
+buch.add_command('lookup', lookup_command)
 
 buch.run()
