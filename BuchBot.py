@@ -7,6 +7,7 @@ from SlackBot import SlackBot
 slack_channel_id = None
 keyword_mappings = {}
 wolfram_app_id = None
+quiet_mode = False
 
 def load_config():
     '''Load bot options from config file'''
@@ -41,7 +42,11 @@ def listen_for_keywords(bot, msg):
     '''Event handler that watches chat messages for certain keywords (stored as
     regular expressions in a JSON file, and then responds according to a mapping
     of keyword expressions to responses'''
-    global keyword_mappings
+    global keyword_mappings, quiet_mode
+
+    if quiet_mode:
+        return
+    
     if msg.user != bot.user_id and msg.channel == slack_channel_id:
         if keyword_mappings == {}:
             load_keywords()
@@ -135,6 +140,14 @@ def lookup_command(bot, msg):
     match = re.match('^!lookup (.*)$', msg.text, re.I)
     result = wolfram_lookup(match.groups()[0])
     bot.say(msg.channel, result)
+
+def shutup_command(bot, msg):
+    global quiet_mode
+    quiet_mode = True
+
+def speakup_command(bot, msg):
+    global quiet_mode
+    quiet_mode = False
     
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
@@ -174,5 +187,7 @@ buch.add_command('kris', kris_command)
 buch.add_command('grumble', grumble_command)
 buch.add_command('clickbait', clickbait_command)
 buch.add_command('lookup', lookup_command)
+buch.add_command('shutup', shutup_command)
+buch.add_command('speakup', speakup_command)
 
 buch.run()
