@@ -79,8 +79,6 @@ class SlackBot:
             self.on_message(ws, message)
             e = SlackEvent.from_dict(json.loads(message))
 
-            # Slack seems to barrage the session with a bunch of old
-            # messages upon startup, so ignore these
             if e.type == 'message' and e.ts < self.start_time:
                 if DEBUG:
                     print 'Skipping old message:', message
