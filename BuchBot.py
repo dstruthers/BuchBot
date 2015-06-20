@@ -156,7 +156,7 @@ def speakup_command(bot, msg):
     quiet_mode = False
 
 def markov_command(bot, msg):
-    bot.say(msg.channel, markov_chain())
+    bot.say(msg.channel, markov_chain().upper() + '!!!')
     
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
@@ -204,7 +204,7 @@ def markov_chain(length=32, order=2):
 
         chain.append(eligible_chunks[randint(0, len(eligible_chunks) - 1)][-1])
     
-    sentence = ' '.join(chain) + '.'
+    sentence = ' '.join(chain)
     return sentence[0].upper() + sentence[1:]
         
 load_config()
