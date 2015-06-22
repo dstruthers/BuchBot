@@ -1,14 +1,14 @@
 import ConfigParser, json, re, urllib2
 import xml.etree.ElementTree as ET
 from random import randint
-from SlackBot import SlackBot
 
+import markov
+from SlackBot import SlackBot
 
 slack_channel_id = None
 keyword_mappings = {}
 wolfram_app_id = None
 quiet_mode = False
-markov_data = []
 
 def load_config():
     '''Load bot options from config file'''
@@ -58,10 +58,8 @@ def listen_for_keywords(bot, msg):
                 break
 
 def build_markov_vocab(bot, msg):
-    global markov_data
-
     if msg.user != bot.user_id and msg.channel == slack_channel_id:
-        markov_process_text(msg.text)
+        markov.process_text(msg.text)
 
 def reload_command(bot, msg):
     load_config()
@@ -156,7 +154,7 @@ def speakup_command(bot, msg):
     quiet_mode = False
 
 def markov_command(bot, msg):
-    bot.say(msg.channel, markov_chain())
+    bot.say(msg.channel, markov.markov_chain().upper() + '!!!')
     
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
@@ -177,35 +175,6 @@ def greet_people(bot, msg):
             bot.say(slack_channel_id, 'HELLO %s!!!' % user.username)
     else:
         user.presence = msg.presence
-
-def markov_process_text(text):
-    markov_data.append(filter(lambda x: x != '', re.split(r'\W+', text)))
-
-def markov_chain(length=32, order=2):
-    chunks = []
-    for d in markov_data:
-        for i in range(0, len(d) - order + 1):
-            chunks.append(d[i:i+order])
-
-    chain = chunks[randint(0, len(chunks) - 1)]
-
-    while len(chain) < length:
-        tail = chain[-(order - 1):]
-
-        def eligible(chunk):
-            ihead = map(lambda x: x.upper(), chunk[0:order - 1])
-            itail = map(lambda x: x.upper(), tail)
-            return ihead == itail
-
-        eligible_chunks = filter(eligible, chunks)
-
-        if len(eligible_chunks) == 0:
-            break
-
-        chain.append(eligible_chunks[randint(0, len(eligible_chunks) - 1)][-1])
-    
-    sentence = ' '.join(chain) + '.'
-    return sentence[0].upper() + sentence[1:]
         
 load_config()
 
