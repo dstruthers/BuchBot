@@ -98,6 +98,9 @@ def totinos_command(bot, msg):
 def kris_command(bot, msg):
     bot.say(msg.channel, 'https://lh3.googleusercontent.com/o4shSu16vzXDbYsbW87zMRao4Oa5-Y5ySxgjtlZG0Dk=w640-h960-no')
 
+def eric_command(bot, msg):
+    bot.say(msg.channel, 'https://westsixth.slack.com/files/eric/F06NMPQ8Z/slack_for_ios_upload.jpg')
+
 def grumble_command(bot, msg):
     bot.say(msg.channel, 'http://www.secrettoeverybody.com/images/grumble.png')
 
@@ -175,38 +178,6 @@ def greet_people(bot, msg):
             bot.say(slack_channel_id, 'HELLO %s!!!' % user.username)
     else:
         user.presence = msg.presence
-<<<<<<< HEAD
-=======
-
-def markov_process_text(text):
-    markov_data.append(filter(lambda x: x != '', re.split(r'\W+', text)))
-
-def markov_chain(length=32, order=2):
-    chunks = []
-    for d in markov_data:
-        for i in range(0, len(d) - order + 1):
-            chunks.append(d[i:i+order])
-
-    chain = chunks[randint(0, len(chunks) - 1)]
-
-    while len(chain) < length:
-        tail = chain[-(order - 1):]
-
-        def eligible(chunk):
-            ihead = map(lambda x: x.upper(), chunk[0:order - 1])
-            itail = map(lambda x: x.upper(), tail)
-            return ihead == itail
-
-        eligible_chunks = filter(eligible, chunks)
-
-        if len(eligible_chunks) == 0:
-            break
-
-        chain.append(eligible_chunks[randint(0, len(eligible_chunks) - 1)][-1])
-    
-    sentence = ' '.join(chain)
-    return sentence[0].upper() + sentence[1:]
->>>>>>> 7a6c04a885c3cfc2af45fc5b5ecf3f58c8650ac8
         
 load_config()
 
@@ -230,5 +201,6 @@ buch.add_command('lookup', lookup_command)
 buch.add_command('shutup', shutup_command)
 buch.add_command('speakup', speakup_command)
 buch.add_command('markov', markov_command)
+buch.add_command('eric', eric_command)
 
 buch.run()
