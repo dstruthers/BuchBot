@@ -1,0 +1,3 @@
+[submodule "SlackBot"]
+	path = SlackBot
+	url = https://github.com/dstruthers/SlackBot

@@ -1,14 +1,15 @@
-import ConfigParser, json, re, urllib2
+import ConfigParser, json, re, threading, time, urllib2
 import xml.etree.ElementTree as ET
 from random import randint
 
 import markov
-from SlackBot import SlackBot
+from SlackBot import *
 
 slack_channel_id = None
 keyword_mappings = {}
 wolfram_app_id = None
 quiet_mode = False
+start_time = time.time()
 
 def load_config():
     '''Load bot options from config file'''
@@ -158,7 +159,124 @@ def speakup_command(bot, msg):
 
 def markov_command(bot, msg):
     bot.say(msg.channel, markov.markov_chain().upper() + '!!!')
+
+def roll_command(bot, msg):
+    limit = 20
+    match = re.search('^!roll d([0-9]+)', msg.text, re.I)
+    if match:
+        limit = int(match.groups()[0])
+        if limit < 1: limit = 20
+    bot.say(msg.channel, str(randint(1, limit)))
+
+def magic_8ball_command(bot, msg):
+    responses = ['It is certain',
+                 'It is decidedly so',
+                 'Without a doubt',
+                 'Yes definitely',
+                 'You may rely on it',
+                 'As I see it, yes',
+                 'Most likely',
+                 'Outlook good',
+                 'Yes',
+                 'Signs point to yes',
+                 'Reply hazy try again',
+                 'Ask again later',
+                 'Better not tell you now',
+                 'Cannot predict now',
+                 'Concentrate and ask again',
+                 "Don't count on it",
+                 'My reply is no',
+                 'My sources say no',
+                 'Outlook not so good',
+                 'Very doubtful']
+    bot.say(msg.channel, responses[randint(0, len(responses) - 1)].upper() + '!!!')
+
+def uptime_command(bot, msg):
+    uptime = time() - start_time
+    d = uptime // 86400
+    h = (uptime % 86400) // 3600
+    m = (uptime % 86400) % 3600
+    s = (uptime % 86400)
+
+    if s == 1:
+        u = '1 SECOND AND COUNTING!!!'
+    else:
+        u = '%d SECONDS AND COUNTING!!!' % s
+        
+    if m or h or d:
+        if m == 1:
+            u = '1 MINUTE, ' + u
+        else:
+            u = ('%d MINUTES, ' % m) + u
+            
+    if h or d:
+        if h == 1:
+            u = '1 HOUR, ' + u
+        else:
+            u = ('%d HOURS, ' % h) + u
+            
+    if d:
+        if d == 1:
+            u = '1 DAY, ' + u
+        else:
+            u = ('%d DAYS, ' % d) + u
+            
+    bot.say(msg.channel, u)
+
+def rickyism_command(bot, msg):
+    f = open('rickyisms.txt', 'r')
+    quotes = f.readlines()
+
+    match = re.search('^!rickyism ([0-9]+)', msg.text, re.I)
+    i = -1
+    if match:
+        i = int(match.groups()[0])
+
+    if i < 1 or i > len(quotes):
+        i = randint(1, len(quotes))
+
+    bot.say(msg.channel, ':ricky: %s [%d]' % (quotes[i - 1].rstrip(), i))
     
+def shitism_command(bot, msg):
+    f = open('shitisms.txt', 'r')
+    quotes = f.readlines()
+
+    match = re.search('^!shitism ([0-9]+)', msg.text, re.I)
+    i = -1
+    if match:
+        i = int(match.groups()[0])
+
+    if i < 1 or i > len(quotes):
+        i = randint(1, len(quotes))
+        
+    bot.say(msg.channel, ':lahey: %s [%d]' % (quotes[i - 1].rstrip(), i))
+
+def shitgrep_command(bot, msg):
+    with open('shitisms.txt', 'r') as f:
+        match = re.search('^!shitgrep (.+)', msg.text, re.I)
+        matches = []
+        if match:
+            for quote in f.readlines():
+                if re.search(match.groups()[0], quote, re.I):
+                    matches.append(quote)
+
+            if len(matches) > 0:
+                bot.say(msg.channel, ':lahey: %s' % matches[randint(0, len(matches) - 1)])
+            else:
+                bot.say(msg.channel, ':lahey: No such thing as a shit %s, Ran.' % match.groups()[0])
+            
+def map_command(bot, msg):
+    bot.say(msg.channel, 'http://minecraft.westsixth.net:17124/')
+
+def mamamia_command(bot, msg):
+    bot.say(msg.channel, 'https://slack-files.com/files-tmb/T044V63R5-F08FJD43D-72291cdbe0/1_my_mamma_mia_1024.jpg')
+
+def partypizzas_command(bot, msg):
+    bot.say(msg.channel, 'https://slack-files.com/files-tmb/T044V63R5-F08FJ8R4G-bf540b0c8c/2_party_pizzas_1024.jpg')
+
+def totinoboy_command(bot, msg):
+    bot.say(msg.channel, 'https://slack-files.com/files-tmb/T044V63R5-F08FJL1KK-27edaa94cb/3_totino_boy_1024.jpg')
+
 def greet_people(bot, msg):
     '''Event handler that sends a greeting to users when they return to the
     chat'''
@@ -202,5 +320,21 @@ buch.add_command('shutup', shutup_command)
 buch.add_command('speakup', speakup_command)
 buch.add_command('markov', markov_command)
 buch.add_command('eric', eric_command)
+buch.add_command('roll', roll_command)
+buch.add_command('8ball', magic_8ball_command)
+buch.add_command('uptime', uptime_command)
+buch.add_command('rickyism', rickyism_command)
+buch.add_command('shitism', shitism_command)
+buch.add_command('map', map_command)
+buch.add_command('mamamia', mamamia_command)
+buch.add_command('partypizzas', partypizzas_command)
+buch.add_command('totinoboy', totinoboy_command)
+buch.add_command('shitgrep', shitgrep_command)
 
+def extras():
+    global buch
+    pass
+
+threading.Thread(target=extras).start()
+#buch.shell()
 buch.run()
